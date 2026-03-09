@@ -1,3 +1,7 @@
+-- =========================
+-- PetHealthWatch v 1.3  - Turtle WoW / 1.12
+-- =========================
+
 -- 1. Setup Defaults
 PHW_Defaults = {
     threshPct = 50,
@@ -247,4 +251,5 @@ SlashCmdList["PHW"] = function(msg)
         DEFAULT_CHAT_FRAME:AddMessage("|cff00ff00/phw reset|r - Reset button to center screen")
         PHW_PrintStatus()
     end
+
 end
