@@ -1,0 +1,5 @@
+## Interface: 11200
+## Title: PetHealthWatch
+## Notes: Smart Hunter pet monitor with Revive/Call logic.
+## SavedVariables: PHW_Config
+PetHealthWatch.lua
