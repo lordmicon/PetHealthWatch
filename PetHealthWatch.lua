@@ -1,5 +1,5 @@
 -- =========================
--- PetHealthWatch v 1.3.1  - Turtle WoW / 1.12
+-- PetHealthWatch v 1.3.1  - Turtle WoW addon
 -- =========================
 
 -- 1. Setup Defaults
