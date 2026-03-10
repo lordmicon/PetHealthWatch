@@ -1,5 +1,5 @@
 -- =========================
--- PetHealthWatch v 1.3  - Turtle WoW / 1.12
+-- PetHealthWatch v 1.3.1  - Turtle WoW / 1.12
 -- =========================
 
 -- 1. Setup Defaults
@@ -54,16 +54,19 @@ logicFrame:SetScript("OnUpdate", function()
     local isDead = UnitIsDead("pet")
     local hp = UnitHealth("pet")
     
-    -- State Memory Logic
+    -- HARDENED SYNC: Only set Dead if the game explicitly says so.
+    -- This ignores the "0 HP" glitch that happens when the pet is out of range.
     if exists then
-        if not isDead and hp > 0 then
-            PHW_Config.deadMemory = false
-        else
+        if hp > 0 and not isDead then
+            if PHW_Config.deadMemory then
+                PHW_Config.deadMemory = false
+            end
+        elseif isDead then
             PHW_Config.deadMemory = true
         end
     end
 
-    -- Dynamic UI Logic
+    -- DYNAMIC UI
     if PHW_Config.deadMemory then
         if exists then
             frame.icon:SetTexture("Interface\\Icons\\Ability_Hunter_BeastSoothe")
@@ -92,7 +95,7 @@ logicFrame:SetScript("OnUpdate", function()
         end
     end
 
-    -- Channeling Text
+    -- Channeling
     if isChanneling then
         local timeLeft = channelDuration - (GetTime() - channelStart)
         if timeLeft > 0 then
@@ -128,7 +131,8 @@ local function PHW_PrintStatus()
     if not PHW_Config then return end
     local mode = PHW_Config.isPercent and "%" or " HP"
     local currentVal = PHW_Config.isPercent and PHW_Config.threshPct or PHW_Config.threshVal
-    DEFAULT_CHAT_FRAME:AddMessage("|cffffff00PHW:|r Alert at |cff00ff00" .. currentVal .. mode .. "|r (" .. PHW_Config.manaCost .. " Mana)")
+    DEFAULT_CHAT_FRAME:AddMessage("|cffffff00Pet Health Watch V1.3 loaded.  /PHW for help")
+    DEFAULT_CHAT_FRAME:AddMessage("|cffffff00PHW Alert at:|r |cff00ff00" .. currentVal .. mode .. "|r")
 end
 
 local function PHW_ScanMana()
@@ -188,6 +192,9 @@ frame:SetScript("OnEvent", function()
         end
         this:ClearAllPoints()
         this:SetPoint("CENTER", UIParent, "CENTER", PHW_Config.posX, PHW_Config.posY)
+        
+        PHW_PrintStatus()
+        return
     end
 
     if event == "PLAYER_ENTERING_WORLD" then
@@ -233,16 +240,12 @@ SlashCmdList["PHW"] = function(msg)
         PHW_PrintStatus()
     elseif cmd == "test" then
         isTriggered = not isTriggered
-        DEFAULT_CHAT_FRAME:AddMessage("PHW: Testing health alert display.")
     elseif cmd == "clear" then
         if PHW_Config then PHW_Config.deadMemory = false end
-        DEFAULT_CHAT_FRAME:AddMessage("PHW: Death memory cleared.")
     elseif cmd == "reset" then
         PHW_MendButton:ClearAllPoints()
         PHW_MendButton:SetPoint("CENTER", UIParent, "CENTER", 0, -100)
-        DEFAULT_CHAT_FRAME:AddMessage("PHW: Button position reset.")
     else
-        -- Help Menu
         DEFAULT_CHAT_FRAME:AddMessage("|cffffff00PetHealthWatch Commands:|r")
         DEFAULT_CHAT_FRAME:AddMessage("|cff00ff00/phw set #|r - Set alert threshold (e.g. 40)")
         DEFAULT_CHAT_FRAME:AddMessage("|cff00ff00/phw toggle|r - Switch between % and raw HP")
@@ -251,5 +254,4 @@ SlashCmdList["PHW"] = function(msg)
         DEFAULT_CHAT_FRAME:AddMessage("|cff00ff00/phw reset|r - Reset button to center screen")
         PHW_PrintStatus()
     end
-
 end
